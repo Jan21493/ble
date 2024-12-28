@@ -3,8 +3,9 @@ package linux
 import (
 	"context"
 	"fmt"
-	"github.com/rigado/ble/linux/hci/cmd"
 	"io"
+
+	"github.com/rigado/ble/linux/hci/cmd"
 
 	smp2 "github.com/rigado/ble/linux/hci/smp"
 
@@ -59,7 +60,7 @@ func loop(dev *hci.HCI, s *gatt.Server, mtu int) {
 			// An EOF error indicates that the HCI socket was closed during
 			// the read.  Don't report this as an error.
 			if err != io.EOF {
-				dev.Errorf("socket accept: %v", err)
+				dev.Infof("socket accept: %v", err)
 			}
 			return
 		}

@@ -144,6 +144,9 @@ func Connect(ctx context.Context, f AdvFilter) (Client, error) {
 		}
 	}
 
+	// Original in go-ble: Resolve blocking channel #112, adapted for rigado/ble: Resolve blocking channel #76
+	//cln, err := Dial(ctx, (<-ch).Addr())
+	//return cln, errors.Wrap(err, "can't dial")
 	select {
 	case a, ok := <-ch:
 		if ok {

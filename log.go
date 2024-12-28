@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 )
 
 type Logger interface {
@@ -23,6 +24,46 @@ type Logger interface {
 
 var logger Logger
 var loggerMu sync.Mutex
+
+func SetLogLevelTrace() {
+	SetLogLevel(logrus.TraceLevel)
+}
+
+func SetLogLevelDebug() {
+	SetLogLevel(logrus.DebugLevel)
+}
+
+func SetLogLevelInfo() {
+	SetLogLevel(logrus.InfoLevel)
+}
+
+func SetLogLevelWarn() {
+	SetLogLevel(logrus.WarnLevel)
+}
+
+func SetLogLevelError() {
+	SetLogLevel(logrus.ErrorLevel)
+}
+
+func SetLogLevelFatal() {
+	SetLogLevel(logrus.FatalLevel)
+}
+
+func SetLogLevelPanic() {
+	SetLogLevel(logrus.PanicLevel)
+}
+
+func SetLogLevel(level logrus.Level) {
+	l := GetLogger()
+
+	if lg, ok := l.(*defaultLogger); ok {
+		lg.Entry.Logger.SetLevel(level)
+		l.Infof("Logging Level %d", level)
+	} else {
+		// clean this up later
+		l.Error("non-default logger, don't know how to set level")
+	}
+}
 
 func SetLogLevelMax() {
 	l := GetLogger()
@@ -58,10 +99,14 @@ type defaultLogger struct {
 
 func buildDefaultLogger() Logger {
 	l := &logrus.Logger{
-		Formatter: &logrus.TextFormatter{DisableTimestamp: true},
-		Level:     logrus.InfoLevel,
-		Out:       os.Stderr,
-		Hooks:     make(logrus.LevelHooks),
+		// Formatter: &logrus.TextFormatter{DisableTimestamp: true},
+		Formatter: &easy.Formatter{
+			TimestampFormat: "2006-01-02 15:04:05.000",
+			LogFormat:       "%time% [%lvl%] %msg%\n",
+		},
+		Level: logrus.WarnLevel, // instead of InfoLevel
+		Out:   os.Stderr,
+		Hooks: make(logrus.LevelHooks),
 	}
 
 	return &defaultLogger{Entry: l.WithFields(map[string]interface{}{})}
